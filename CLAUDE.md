@@ -15,6 +15,10 @@ Russell (online: Cicero) is returning to software after a long career that inclu
 - Era fields: `lane`, `name`, `s` start year, `e` end year.
 - No build step and no dependencies. Open `index.html` in a browser to run it.
 
+## Requirements
+
+Product scope and decisions live in `docs/requirements.md`. Read it before proposing features or changing the data model, and record new decisions in its decision log.
+
 ## Ground rules
 
 - Historical accuracy matters more than features. Do not invent events or dates; flag anything uncertain, and mark approximate dates with `a: 1`.
