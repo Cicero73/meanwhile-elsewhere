@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Meanwhile, Elsewhere</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+html,body{margin:0;padding:0}
+[hidden]{display:none!important}
+/* Layout: a museum wall chart. Era lanes run left to right; a single brass "now" line slices through every civilization at once. */
+:root{
+  --bg:#EEF0F1; --surface:#FFFFFF; --ink:#18202B; --muted:#5B6573; --rule:#D3D8DE;
+  --accent:#B07A1E; --accent-ink:#7A520F; --lane:#E3E7EB; --lane-alt:#E9ECEF;
+  --display:"Cinzel", "Trajan Pro", Georgia, serif;
+  --body:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --c-greece:#3F78B5; --c-rome:#A3392F; --c-north:#5C7F5A; --c-africa:#B57C2A; --c-near:#8A5A9E;
+  --c-jud:#2F6F9B; --c-chr:#B04A6A; --c-isl:#2F8A6B; --c-india:#C9662E; --c-china:#B8342F; --c-amer:#3E8C8C;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12161C; --surface:#1A2029; --ink:#E6E9ED; --muted:#98A2AF; --rule:#2C3440;
+  --accent:#D9A441; --accent-ink:#E8BD66; --lane:#1E252F; --lane-alt:#222A35;
+  --c-greece:#6FA2DA; --c-rome:#D36B5F; --c-north:#8DB08A; --c-africa:#D9A35A; --c-near:#B48AC6;
+  --c-jud:#64A2CC; --c-chr:#D67C98; --c-isl:#5FBE9B; --c-india:#E8925C; --c-china:#E06A63; --c-amer:#6CC0C0; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12161C; --surface:#1A2029; --ink:#E6E9ED; --muted:#98A2AF; --rule:#2C3440;
+  --accent:#D9A441; --accent-ink:#E8BD66; --lane:#1E252F; --lane-alt:#222A35;
+  --c-greece:#6FA2DA; --c-rome:#D36B5F; --c-north:#8DB08A; --c-africa:#D9A35A; --c-near:#B48AC6;
+  --c-jud:#64A2CC; --c-chr:#D67C98; --c-isl:#5FBE9B; --c-india:#E8925C; --c-china:#E06A63; --c-amer:#6CC0C0; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+.wrap{max-width:1180px;margin:0 auto;padding-block:28px 48px;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));display:grid;gap:20px}
+header{display:grid;gap:6px}
+.kicker{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(28px,5vw,44px);letter-spacing:.04em;margin:0;line-height:1.1;text-wrap:balance}
+.lede{margin:0;color:var(--muted);max-width:62ch}
+.ask{display:flex;gap:8px;flex-wrap:wrap}
+.ask input{flex:1 1 260px;min-width:0;font:inherit;padding:10px 12px;border:1px solid var(--rule);border-radius:8px;background:var(--surface);color:var(--ink)}
+.ask input:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button{font:inherit;cursor:pointer;border:1px solid var(--rule);background:var(--surface);color:var(--ink);border-radius:8px;padding:8px 12px}
+button.primary{background:var(--accent);border-color:var(--accent);color:#14100A;font-weight:600}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chips button{font-size:13px;padding:5px 10px;border-radius:999px}
+.chips .lbl{font-family:var(--mono);font-size:12px;color:var(--muted);align-self:center;margin-right:4px}
+.board{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:14px 12px 10px}
+.bar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.yearbig{font-family:var(--display);font-size:clamp(22px,4vw,30px);font-weight:700;color:var(--accent-ink);font-variant-numeric:tabular-nums}
+.zoom{display:flex;gap:6px;align-items:center}
+.zoom span{font-family:var(--mono);font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+#chart{width:100%;display:block;touch-action:pan-y;user-select:none;cursor:crosshair}
+.hint{font-size:12px;color:var(--muted);margin:6px 2px 0}
+.slider{width:100%;accent-color:var(--accent);margin-top:6px}
+.cols{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:20px}
+@media (max-width:820px){.cols{grid-template-columns:1fr}}
+.panel{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:16px 16px 12px;min-width:0}
+.panel h2{font-family:var(--display);font-size:19px;letter-spacing:.03em;margin:0 0 2px}
+.panel .sub{color:var(--muted);font-size:13px;margin:0 0 12px}
+.world{list-style:none;margin:0;padding:0;display:grid;gap:0}
+.world li{display:grid;grid-template-columns:132px minmax(0,1fr);gap:10px;padding:8px 0;border-top:1px solid var(--rule)}
+@media (max-width:480px){.world li{grid-template-columns:1fr;gap:2px}}
+.lane-name{font-size:13px;font-weight:600;display:flex;gap:7px;align-items:baseline}
+.dot{width:9px;height:9px;border-radius:50%;flex:none;transform:translateY(1px)}
+.era{font-weight:500}
+.quiet{color:var(--muted)}
+.evlink{background:none;border:0;padding:0;color:inherit;text-align:left;cursor:pointer;text-decoration:underline;text-decoration-color:var(--rule);text-underline-offset:3px}
+.evlink:hover{text-decoration-color:var(--accent)}
+.when{font-family:var(--mono);font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.detail h3{font-family:var(--display);font-size:20px;margin:4px 0 4px;letter-spacing:.02em;text-wrap:balance}
+.detail .note{margin:0 0 12px;color:var(--muted)}
+.meanwhile{list-style:none;padding:0;margin:0}
+.meanwhile li{padding:7px 0;border-top:1px solid var(--rule);display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:baseline}
+.tag{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+.empty{color:var(--muted);font-style:italic}
+footer{font-size:12px;color:var(--muted);border-top:1px solid var(--rule);padding-top:12px;display:grid;gap:4px}
+.proto{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--accent);color:var(--accent-ink);border-radius:4px;padding:1px 6px;margin-left:6px;vertical-align:middle}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="kicker">Parallel history · prototype <span class="proto">v0.1</span></div>
+    <h1>Meanwhile, Elsewhere</h1>
+    <p class="lede">Pick any moment in the past and see what every civilization was doing at that same time. Click the chart, drag the slider, or type a year or a topic.</p>
+  </header>
+
+  <form class="ask" id="askForm" autocomplete="off">
+    <input id="askInput" type="text" placeholder="Try “49 BC”, “AD 476”, “Hannibal”, or “Buddha”" aria-label="Year or topic">
+    <button class="primary" type="submit" id="askBtn">Show me</button>
+  </form>
+
+  <div class="chips" id="presets"><span class="lbl">Jump to</span></div>
+
+  <section class="board" aria-label="Parallel timeline">
+    <div class="bar">
+      <div class="yearbig" id="yearBig">63 BC</div>
+      <div class="zoom">
+        <span id="rangeLbl"></span>
+        <button type="button" id="zoomOut" aria-label="Zoom out">−</button>
+        <button type="button" id="zoomIn" aria-label="Zoom in">+</button>
+        <button type="button" id="zoomAll">All</button>
+      </div>
+    </div>
+    <svg id="chart" role="img" aria-label="Timeline lanes for eleven civilizations"></svg>
+    <input class="slider" id="slider" type="range" min="-1600" max="2000" step="1" value="-63" aria-label="Year">
+    <p class="hint">Click a lane to move the brass line there. Click a dot to open that event. Drag the chart sideways to pan.</p>
+  </section>
+
+  <div class="cols">
+    <section class="panel" aria-live="polite">
+      <h2 id="worldTitle">The world in 63 BC</h2>
+      <p class="sub">What was in power, and the nearest recorded events (within 40 years).</p>
+      <ul class="world" id="worldList"></ul>
+    </section>
+    <section class="panel detail" id="detail" aria-live="polite">
+      <h2>Meanwhile…</h2>
+      <p class="sub">Choose any event to see what else happened around the world within a generation.</p>
+      <p class="empty" id="detailEmpty">No event selected yet.</p>
+      <div id="detailBody" hidden></div>
+    </section>
+  </div>
+
+  <footer>
+    <div>Prototype built from the Rome and Abrahamic-history timelines in our spreadsheets: 119 events, 42 eras, 11 lanes. Early dates marked “c.” are approximate or traditional.</div>
+    <div>Next version ideas: ask questions in plain English (an AI layer on top of this checked data), maps, quizzes, and more regions.</div>
+  </footer>
+</div>
+
+<script>
+const DATA = {"lanes": ["Greece", "Rome & Byzantium", "Northern Europe", "Egypt & Africa", "Near East & Persia", "Judaism", "Christianity", "Islam", "India", "China", "Americas"], "events": [{"y": -1200, "a": 1, "lane": "Greece", "era": "Bronze Age", "t": "Traditional date of the Trojan War", "n": "Mycenaean Greece (c. 1600–1100 BC); later immortalized by Homer"}, {"y": -814, "a": 1, "lane": "Egypt & Africa", "era": "Iron Age", "t": "Carthage founded by Phoenicians (traditional date)", "n": "Later Rome's greatest rival"}, {"y": -776, "a": 0, "lane": "Greece", "era": "Archaic Greece", "t": "First Olympic Games", "n": "Traditional starting point of Greek history"}, {"y": -753, "a": 1, "lane": "Rome & Byzantium", "era": "Kingdom", "t": "Legendary founding of Rome by Romulus", "n": "Seven kings rule until 509 BC"}, {"y": -750, "a": 1, "lane": "Greece", "era": "Archaic Greece", "t": "Homer's Iliad and Odyssey", "n": "Composed around the 8th century BC"}, {"y": -612, "a": 0, "lane": "Near East & Persia", "era": "Iron Age", "t": "Fall of Nineveh: Assyrian Empire collapses", "n": "Babylon becomes the leading power"}, {"y": -550, "a": 1, "lane": "Near East & Persia", "era": "Achaemenid Persia", "t": "Cyrus the Great founds the Persian Empire", "n": "Largest empire the world had yet seen"}, {"y": -551, "a": 0, "lane": "China", "era": "Spring & Autumn", "t": "Birth of Confucius (551–479 BC)", "n": "Contemporary of early Republican Rome"}, {"y": -509, "a": 0, "lane": "Rome & Byzantium", "era": "Republic", "t": "Last king expelled; Roman Republic founded", "n": "Two consuls elected yearly; the Senate"}, {"y": -508, "a": 0, "lane": "Greece", "era": "Classical Greece", "t": "Athenian democracy founded by Cleisthenes", "n": "507 BC by some reckonings"}, {"y": -490, "a": 0, "lane": "Greece", "era": "Classical Greece", "t": "Battle of Marathon", "n": "Athens defeats the first Persian invasion"}, {"y": -480, "a": 0, "lane": "Greece", "era": "Classical Greece", "t": "Thermopylae and Salamis", "n": "Leonidas and the 300; Greek navy wins at Salamis"}, {"y": -480, "a": 1, "lane": "India", "era": "Pre-Mauryan", "t": "Life of the Buddha (c. 5th century BC)", "n": "Exact dates debated"}, {"y": -451, "a": 0, "lane": "Rome & Byzantium", "era": "Republic", "t": "Twelve Tables: Rome's first written laws", "n": "451–450 BC"}, {"y": -447, "a": 0, "lane": "Greece", "era": "Classical Greece", "t": "Parthenon begun under Pericles", "n": "Golden Age of Athens (c. 461–429 BC)"}, {"y": -431, "a": 0, "lane": "Greece", "era": "Classical Greece", "t": "Peloponnesian War begins", "n": "Sparta defeats Athens in 404 BC"}, {"y": -399, "a": 0, "lane": "Greece", "era": "Classical Greece", "t": "Socrates executed", "n": "Plato and Aristotle carry on his work"}, {"y": -390, "a": 1, "lane": "Rome & Byzantium", "era": "Republic", "t": "Gauls sack Rome", "n": "390 or 387 BC"}, {"y": -336, "a": 0, "lane": "Greece", "era": "Classical Greece", "t": "Alexander the Great becomes king", "n": "Conquers from Egypt to India; dies 323 BC"}, {"y": -330, "a": 0, "lane": "Near East & Persia", "era": "Achaemenid Persia", "t": "Alexander conquers the Persian Empire", "n": ""}, {"y": -323, "a": 0, "lane": "Greece", "era": "Hellenistic", "t": "Death of Alexander; Hellenistic Age begins", "n": "Greek kingdoms rule the eastern Mediterranean"}, {"y": -322, "a": 0, "lane": "India", "era": "Mauryan", "t": "Mauryan Empire founded by Chandragupta", "n": "Lasts to 185 BC"}, {"y": -305, "a": 0, "lane": "Egypt & Africa", "era": "Ptolemaic", "t": "Ptolemaic dynasty begins in Egypt", "n": "Library of Alexandria becomes the world's intellectual center"}, {"y": -268, "a": 1, "lane": "India", "era": "Mauryan", "t": "Reign of Ashoka (c. 268–232 BC)", "n": "Spreads Buddhism across Asia"}, {"y": -264, "a": 0, "lane": "Rome & Byzantium", "era": "Republic", "t": "First Punic War begins", "n": "Rome vs. Carthage"}, {"y": -247, "a": 0, "lane": "Near East & Persia", "era": "Parthian", "t": "Parthian Empire founded", "n": "Rome's great eastern rival until AD 224"}, {"y": -221, "a": 0, "lane": "China", "era": "Qin", "t": "Qin Shi Huang unifies China", "n": "Great Wall begun; Terracotta Army"}, {"y": -218, "a": 0, "lane": "Rome & Byzantium", "era": "Republic", "t": "Hannibal crosses the Alps", "n": "Second Punic War; Cannae 216 BC; Zama 202 BC"}, {"y": -206, "a": 0, "lane": "China", "era": "Han", "t": "Han Dynasty begins", "n": "Rome's rough equal in size and power; lasts to AD 220"}, {"y": -146, "a": 0, "lane": "Rome & Byzantium", "era": "Republic", "t": "Rome destroys Carthage and Corinth", "n": "Greece becomes a Roman province"}, {"y": -146, "a": 0, "lane": "Greece", "era": "Roman Greece", "t": "Greece falls under Roman rule", "n": ""}, {"y": -133, "a": 0, "lane": "Rome & Byzantium", "era": "Republic", "t": "Tiberius Gracchus killed", "n": "Start of a century of political violence"}, {"y": -106, "a": 0, "lane": "Rome & Byzantium", "era": "Republic", "t": "Cicero born", "n": "Arpinum, January 3, 106 BC"}, {"y": -63, "a": 0, "lane": "Rome & Byzantium", "era": "Republic", "t": "Cicero consul; defeats the Catiline conspiracy", "n": "Same year Pompey takes Jerusalem"}, {"y": -58, "a": 0, "lane": "Rome & Byzantium", "era": "Republic", "t": "Cicero exiled (returns 57 BC)", "n": "Caesar begins the conquest of Gaul (58–50 BC)"}, {"y": -53, "a": 0, "lane": "Near East & Persia", "era": "Parthian", "t": "Battle of Carrhae", "n": "Parthians destroy a Roman army; Crassus killed"}, {"y": -49, "a": 0, "lane": "Rome & Byzantium", "era": "Republic", "t": "Caesar crosses the Rubicon", "n": "Civil war"}, {"y": -44, "a": 0, "lane": "Rome & Byzantium", "era": "Republic", "t": "Julius Caesar assassinated", "n": "Ides of March"}, {"y": -43, "a": 0, "lane": "Rome & Byzantium", "era": "Republic", "t": "Cicero killed", "n": "December 7, 43 BC, on Mark Antony's orders"}, {"y": -31, "a": 0, "lane": "Rome & Byzantium", "era": "Republic", "t": "Battle of Actium", "n": "Octavian defeats Antony and Cleopatra"}, {"y": -30, "a": 0, "lane": "Egypt & Africa", "era": "Ptolemaic", "t": "Cleopatra dies; Egypt becomes Roman", "n": "End of the last Hellenistic kingdom"}, {"y": -27, "a": 0, "lane": "Rome & Byzantium", "era": "Empire", "t": "Augustus becomes first emperor", "n": "Pax Romana begins"}, {"y": 9, "a": 0, "lane": "Northern Europe", "era": "Roman", "t": "Battle of the Teutoburg Forest", "n": "Germanic tribes destroy three legions; Rome stops at the Rhine"}, {"y": 14, "a": 0, "lane": "Rome & Byzantium", "era": "Empire", "t": "Augustus dies", "n": ""}, {"y": 64, "a": 0, "lane": "Rome & Byzantium", "era": "Empire", "t": "Great Fire of Rome under Nero", "n": ""}, {"y": 79, "a": 0, "lane": "Rome & Byzantium", "era": "Empire", "t": "Vesuvius buries Pompeii", "n": ""}, {"y": 80, "a": 0, "lane": "Rome & Byzantium", "era": "Empire", "t": "Colosseum opens", "n": ""}, {"y": 105, "a": 1, "lane": "China", "era": "Han", "t": "Paper invented (traditionally credited to Cai Lun)", "n": ""}, {"y": 117, "a": 0, "lane": "Rome & Byzantium", "era": "Empire", "t": "Empire reaches its greatest extent under Trajan", "n": ""}, {"y": 166, "a": 0, "lane": "China", "era": "Han", "t": "Roman envoys reach the Han court", "n": "Rome and China make direct contact"}, {"y": 180, "a": 0, "lane": "Rome & Byzantium", "era": "Empire", "t": "Marcus Aurelius dies; Pax Romana ends", "n": ""}, {"y": 200, "a": 1, "lane": "Americas", "era": "Classic", "t": "Pyramid of the Sun at Teotihuacan built", "n": ""}, {"y": 212, "a": 0, "lane": "Rome & Byzantium", "era": "Empire", "t": "Free men of the empire granted citizenship (Caracalla)", "n": ""}, {"y": 220, "a": 0, "lane": "China", "era": "Three Kingdoms", "t": "Han Dynasty falls", "n": ""}, {"y": 224, "a": 0, "lane": "Near East & Persia", "era": "Sasanian", "t": "Sasanian Persian Empire founded", "n": "Rival of Rome and Byzantium until 651"}, {"y": 235, "a": 0, "lane": "Rome & Byzantium", "era": "Empire", "t": "Crisis of the Third Century begins", "n": "Lasts to 284"}, {"y": 250, "a": 1, "lane": "Americas", "era": "Classic", "t": "Classic Maya period begins", "n": ""}, {"y": 284, "a": 0, "lane": "Rome & Byzantium", "era": "Empire", "t": "Diocletian reorganizes the empire", "n": ""}, {"y": 312, "a": 0, "lane": "Rome & Byzantium", "era": "Empire", "t": "Constantine wins at the Milvian Bridge", "n": ""}, {"y": 313, "a": 0, "lane": "Rome & Byzantium", "era": "Empire", "t": "Edict of Milan legalizes Christianity", "n": ""}, {"y": 320, "a": 1, "lane": "India", "era": "Gupta", "t": "Gupta Empire founded", "n": "India's golden age: math (zero, decimals), astronomy"}, {"y": 330, "a": 0, "lane": "Rome & Byzantium", "era": "Empire", "t": "Constantinople becomes the capital", "n": ""}, {"y": 330, "a": 1, "lane": "Egypt & Africa", "era": "Aksumite", "t": "Aksum (Ethiopia) adopts Christianity", "n": "Under King Ezana"}, {"y": 380, "a": 0, "lane": "Rome & Byzantium", "era": "Empire", "t": "Christianity becomes the official religion", "n": ""}, {"y": 395, "a": 0, "lane": "Rome & Byzantium", "era": "Empire", "t": "Empire permanently divided East and West", "n": ""}, {"y": 410, "a": 0, "lane": "Rome & Byzantium", "era": "Empire", "t": "Visigoths sack Rome", "n": ""}, {"y": 453, "a": 0, "lane": "Northern Europe", "era": "Migration", "t": "Attila the Hun dies", "n": ""}, {"y": 476, "a": 0, "lane": "Rome & Byzantium", "era": "Empire", "t": "Last Western emperor deposed", "n": "Traditional end of the Western Roman Empire"}, {"y": 1453, "a": 0, "lane": "Rome & Byzantium", "era": "Byzantine", "t": "Constantinople falls to the Ottomans", "n": "End of the Eastern Roman (Byzantine) Empire"}, {"y": -1900, "a": 1, "lane": "Judaism", "era": "Patriarchs (traditional)", "t": "Abraham's covenant with God", "n": "Traditional date c. 2000–1800 BC; no outside historical records"}, {"y": -1250, "a": 1, "lane": "Judaism", "era": "Exodus (traditional)", "t": "Moses leads the Exodus; Torah given at Sinai", "n": "Traditional date c. 1300–1200 BC"}, {"y": -1000, "a": 1, "lane": "Judaism", "era": "United Monarchy", "t": "King David makes Jerusalem his capital", "n": ""}, {"y": -960, "a": 1, "lane": "Judaism", "era": "First Temple", "t": "Solomon builds the First Temple", "n": ""}, {"y": -722, "a": 0, "lane": "Judaism", "era": "First Temple", "t": "Assyria conquers the northern kingdom of Israel", "n": ""}, {"y": -587, "a": 1, "lane": "Judaism", "era": "Exile", "t": "Babylon destroys the First Temple; Babylonian exile", "n": "587 or 586 BC"}, {"y": -539, "a": 0, "lane": "Judaism", "era": "Second Temple", "t": "Cyrus of Persia lets the Jews return", "n": "Second Temple completed c. 515 BC"}, {"y": -167, "a": 0, "lane": "Judaism", "era": "Second Temple", "t": "Maccabean revolt against Greek rule", "n": "Origin of Hanukkah"}, {"y": -63, "a": 0, "lane": "Rome & Byzantium", "era": "Roman", "t": "Rome takes Jerusalem (Pompey)", "n": "During Cicero's consulship year"}, {"y": -4, "a": 1, "lane": "Christianity", "era": "Origins", "t": "Birth of Jesus", "n": "Life c. 4 BC–AD 30/33, in Roman Judea"}, {"y": 30, "a": 1, "lane": "Christianity", "era": "Origins", "t": "Crucifixion of Jesus under Pontius Pilate", "n": "AD 30 or 33"}, {"y": 50, "a": 1, "lane": "Christianity", "era": "Apostolic", "t": "Paul's letters", "n": "Earliest Christian writings (AD 50s)"}, {"y": 70, "a": 0, "lane": "Judaism", "era": "Rabbinic", "t": "Rome destroys the Second Temple", "n": "Judaism shifts to synagogue and rabbi-centered practice"}, {"y": 70, "a": 1, "lane": "Christianity", "era": "Apostolic", "t": "The four Gospels written", "n": "c. AD 70–100"}, {"y": 132, "a": 0, "lane": "Judaism", "era": "Rabbinic", "t": "Bar Kokhba revolt (132–135)", "n": "Jews barred from Jerusalem"}, {"y": 200, "a": 1, "lane": "Judaism", "era": "Rabbinic", "t": "Mishnah compiled", "n": "Core of the Talmud"}, {"y": 313, "a": 0, "lane": "Christianity", "era": "Roman Christianity", "t": "Edict of Milan legalizes Christianity", "n": ""}, {"y": 325, "a": 0, "lane": "Christianity", "era": "Roman Christianity", "t": "Council of Nicaea", "n": "Defines core Christian beliefs (Nicene Creed)"}, {"y": 380, "a": 0, "lane": "Christianity", "era": "Roman Christianity", "t": "Christianity becomes Rome's official religion", "n": ""}, {"y": 500, "a": 1, "lane": "Judaism", "era": "Rabbinic", "t": "Babylonian Talmud completed", "n": "c. 500–600"}, {"y": 570, "a": 1, "lane": "Islam", "era": "Origins", "t": "Muhammad born in Mecca", "n": ""}, {"y": 602, "a": 0, "lane": "Near East & Persia", "era": "Late Antiquity", "t": "Byzantine–Persian War begins (602–628)", "n": "Exhausts both empires just before Islam's expansion"}, {"y": 610, "a": 0, "lane": "Islam", "era": "Origins", "t": "First revelation of the Quran", "n": ""}, {"y": 622, "a": 0, "lane": "Islam", "era": "Origins", "t": "Hijra: Muhammad moves to Medina", "n": "Year 1 of the Islamic calendar"}, {"y": 630, "a": 0, "lane": "Islam", "era": "Origins", "t": "Muslims take Mecca", "n": "Kaaba dedicated to one God"}, {"y": 632, "a": 0, "lane": "Islam", "era": "Rashidun Caliphate", "t": "Muhammad dies", "n": "Dispute over leadership begins the Sunni–Shia divide"}, {"y": 637, "a": 0, "lane": "Islam", "era": "Rashidun Caliphate", "t": "Muslims take Jerusalem", "n": "637 or 638"}, {"y": 650, "a": 1, "lane": "Islam", "era": "Rashidun Caliphate", "t": "Quran compiled into a standard text under Caliph Uthman", "n": ""}, {"y": 680, "a": 0, "lane": "Islam", "era": "Umayyad Caliphate", "t": "Battle of Karbala: Husayn killed", "n": "Defining event for Shia Islam"}, {"y": 691, "a": 0, "lane": "Islam", "era": "Umayyad Caliphate", "t": "Dome of the Rock built in Jerusalem", "n": "691/692"}, {"y": 711, "a": 0, "lane": "Islam", "era": "Umayyad Caliphate", "t": "Muslim conquest of Spain begins", "n": "Al-Andalus lasts until 1492"}, {"y": 750, "a": 0, "lane": "Islam", "era": "Abbasid Caliphate", "t": "Abbasid Caliphate begins", "n": "Baghdad's Islamic Golden Age"}, {"y": 1054, "a": 0, "lane": "Christianity", "era": "Medieval", "t": "Great Schism: Catholic West and Orthodox East split", "n": ""}, {"y": 1096, "a": 0, "lane": "Near East & Persia", "era": "Crusades", "t": "First Crusade begins", "n": "Crusades run 1095/1096–1291"}, {"y": 1099, "a": 0, "lane": "Near East & Persia", "era": "Crusades", "t": "Crusaders take Jerusalem", "n": ""}, {"y": 1135, "a": 0, "lane": "Judaism", "era": "Medieval", "t": "Maimonides born (1135–1204)", "n": "Great Jewish philosopher who lived in the Islamic world"}, {"y": 1187, "a": 0, "lane": "Islam", "era": "Crusades", "t": "Saladin retakes Jerusalem", "n": ""}, {"y": 1258, "a": 0, "lane": "Islam", "era": "Medieval", "t": "Mongols destroy Baghdad", "n": "Ends the Abbasid golden age"}, {"y": 1290, "a": 0, "lane": "Judaism", "era": "Medieval", "t": "Jews expelled from England", "n": ""}, {"y": 1492, "a": 0, "lane": "Judaism", "era": "Early Modern", "t": "Spain expels its Jews", "n": "Same year Granada, the last Muslim kingdom in Spain, falls"}, {"y": 1517, "a": 0, "lane": "Christianity", "era": "Reformation", "t": "Martin Luther begins the Protestant Reformation", "n": ""}, {"y": 1740, "a": 1, "lane": "Judaism", "era": "Early Modern", "t": "Rise of Hasidic Judaism", "n": "Baal Shem Tov, Eastern Europe (1700s)"}, {"y": 1744, "a": 1, "lane": "Islam", "era": "Early Modern", "t": "Rise of Wahhabism in Arabia", "n": "Muhammad ibn Abd al-Wahhab (1700s)"}, {"y": 1810, "a": 1, "lane": "Judaism", "era": "Modern", "t": "Reform Judaism emerges in Germany", "n": "Early 1800s"}, {"y": 1897, "a": 0, "lane": "Judaism", "era": "Modern", "t": "First Zionist Congress", "n": ""}, {"y": 1924, "a": 0, "lane": "Islam", "era": "Modern", "t": "Ottoman caliphate abolished", "n": ""}, {"y": 1933, "a": 0, "lane": "Judaism", "era": "Modern", "t": "The Holocaust (1933–1945)", "n": "About 6 million Jews murdered"}, {"y": 1948, "a": 0, "lane": "Near East & Persia", "era": "Modern", "t": "State of Israel established", "n": "Hundreds of thousands of Palestinians displaced"}, {"y": 1962, "a": 0, "lane": "Christianity", "era": "Modern", "t": "Second Vatican Council (1962–1965)", "n": "Modernizes the Catholic Church"}, {"y": 1979, "a": 0, "lane": "Islam", "era": "Modern", "t": "Iranian Revolution", "n": "Creates an Islamic republic"}], "eras": [{"lane": "Greece", "name": "Mycenaean Greece", "s": -1600, "e": -1100}, {"lane": "Greece", "name": "Dark Age", "s": -1100, "e": -800}, {"lane": "Greece", "name": "Archaic & Classical", "s": -800, "e": -323}, {"lane": "Greece", "name": "Hellenistic", "s": -323, "e": -31}, {"lane": "Rome & Byzantium", "name": "Kingdom", "s": -753, "e": -509}, {"lane": "Rome & Byzantium", "name": "Republic", "s": -509, "e": -27}, {"lane": "Rome & Byzantium", "name": "Empire (West)", "s": -27, "e": 476}, {"lane": "Rome & Byzantium", "name": "Byzantine Empire", "s": 476, "e": 1453}, {"lane": "Northern Europe", "name": "Celtic Iron Age", "s": -800, "e": -50}, {"lane": "Northern Europe", "name": "Roman frontier & migrations", "s": -50, "e": 500}, {"lane": "Northern Europe", "name": "Frankish kingdoms", "s": 481, "e": 843}, {"lane": "Egypt & Africa", "name": "Carthage", "s": -814, "e": -146}, {"lane": "Egypt & Africa", "name": "Kingdom of Kush", "s": -785, "e": 350}, {"lane": "Egypt & Africa", "name": "Ptolemaic Egypt", "s": -305, "e": -30}, {"lane": "Egypt & Africa", "name": "Kingdom of Aksum", "s": 100, "e": 940}, {"lane": "Near East & Persia", "name": "Assyria", "s": -911, "e": -612}, {"lane": "Near East & Persia", "name": "Achaemenid Persia", "s": -550, "e": -330}, {"lane": "Near East & Persia", "name": "Parthian Empire", "s": -247, "e": 224}, {"lane": "Near East & Persia", "name": "Sasanian Persia", "s": 224, "e": 651}, {"lane": "Judaism", "name": "First Temple", "s": -960, "e": -587}, {"lane": "Judaism", "name": "Exile", "s": -587, "e": -539}, {"lane": "Judaism", "name": "Second Temple", "s": -515, "e": 70}, {"lane": "Judaism", "name": "Rabbinic Judaism", "s": 70, "e": 600}, {"lane": "Christianity", "name": "Early Church", "s": 30, "e": 313}, {"lane": "Christianity", "name": "Imperial Church", "s": 313, "e": 1054}, {"lane": "Christianity", "name": "East–West split", "s": 1054, "e": 1517}, {"lane": "Islam", "name": "Rashidun", "s": 632, "e": 661}, {"lane": "Islam", "name": "Umayyad", "s": 661, "e": 750}, {"lane": "Islam", "name": "Abbasid", "s": 750, "e": 1258}, {"lane": "Islam", "name": "Al-Andalus", "s": 711, "e": 1492}, {"lane": "Islam", "name": "Ottoman Empire", "s": 1299, "e": 1922}, {"lane": "India", "name": "Mauryan Empire", "s": -322, "e": -185}, {"lane": "India", "name": "Kushan Empire", "s": 30, "e": 375}, {"lane": "India", "name": "Gupta Empire", "s": 320, "e": 550}, {"lane": "China", "name": "Zhou dynasty", "s": -1046, "e": -256}, {"lane": "China", "name": "Qin", "s": -221, "e": -206}, {"lane": "China", "name": "Han dynasty", "s": -206, "e": 220}, {"lane": "China", "name": "Three Kingdoms & division", "s": 220, "e": 589}, {"lane": "China", "name": "Tang dynasty", "s": 618, "e": 907}, {"lane": "Americas", "name": "Olmec", "s": -1200, "e": -400}, {"lane": "Americas", "name": "Teotihuacan", "s": -100, "e": 550}, {"lane": "Americas", "name": "Classic Maya", "s": 250, "e": 900}]};
+const LANE_COLOR = {"Greece":"--c-greece","Rome & Byzantium":"--c-rome","Northern Europe":"--c-north","Egypt & Africa":"--c-africa","Near East & Persia":"--c-near","Judaism":"--c-jud","Christianity":"--c-chr","Islam":"--c-isl","India":"--c-india","China":"--c-china","Americas":"--c-amer"};
+const SHORT = {"Rome & Byzantium":"Rome","Northern Europe":"N. Europe","Egypt & Africa":"Africa","Near East & Persia":"Near East","Christianity":"Christian.","Judaism":"Judaism"};
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const fmt = y => y < 0 ? `${-y} BC` : `AD ${y}`;
+const fmtE = e => (e.a ? "c. " : "") + fmt(e.y);
+const MIN=-1600, MAX=2000, WINDOW=40;
+let view = {a:-900, b:700}, year=-63, selected=null;
+const svg = document.getElementById('chart');
+const NS = 'http://www.w3.org/2000/svg';
+function el(tag, attrs, parent){const e=document.createElementNS(NS,tag); for(const k in attrs) e.setAttribute(k, attrs[k]); if(parent) parent.appendChild(e); return e;}
+
+function draw(){
+  const W = svg.clientWidth || 800;
+  const narrow = W < 560;
+  const LBL = narrow ? 74 : 130, laneH = narrow ? 26 : 30, top = 22, H = top + DATA.lanes.length*laneH + 6;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.setAttribute('height', H);
+  svg.innerHTML='';
+  const x = y => LBL + (y - view.a) / (view.b - view.a) * (W - LBL - 8);
+  svg._x = x; svg._LBL = LBL; svg._W = W;
+  // ticks
+  const span = view.b - view.a;
+  const step = [25,50,100,200,250,500][[25,50,100,200,250,500].findIndex(s => span/s <= (narrow?6:10))] || 500;
+  for(let t=Math.ceil(view.a/step)*step; t<=view.b; t+=step){
+    const X=x(t); el('line',{x1:X,x2:X,y1:top-4,y2:H-4,stroke:css('--rule'),'stroke-width':1},svg);
+    const lab=el('text',{x:X,y:12,'text-anchor':'middle','font-family':css('--mono')||'monospace','font-size':10,fill:css('--muted')},svg);
+    lab.textContent = t===0 ? '1 BC|AD 1' : (t<0?`${-t} BC`:`${t}`);
+  }
+  DATA.lanes.forEach((lane,i)=>{
+    const y0 = top + i*laneH;
+    el('rect',{x:LBL,y:y0+2,width:W-LBL-8,height:laneH-4,fill:css(i%2?'--lane-alt':'--lane'),rx:3},svg);
+    const t=el('text',{x:LBL-8,y:y0+laneH/2+4,'text-anchor':'end','font-size':narrow?10:12,'font-weight':600,fill:css('--ink'),'font-family':'IBM Plex Sans, system-ui, sans-serif'},svg);
+    t.textContent = narrow ? (SHORT[lane]||lane) : lane;
+    const col = css(LANE_COLOR[lane]);
+    DATA.eras.filter(e=>e.lane===lane && e.e>view.a && e.s<view.b).forEach(e=>{
+      const x1=Math.max(LBL,x(e.s)), x2=Math.min(W-8,x(e.e));
+      const r=el('rect',{x:x1,y:y0+6,width:Math.max(2,x2-x1),height:laneH-12,fill:col,'fill-opacity':0.28,stroke:col,'stroke-opacity':.6,rx:3},svg);
+      el('title',{},r).textContent = `${e.name}: ${fmt(e.s)} – ${fmt(e.e)}`;
+      if(x2-x1 > (narrow?60:80)){const tt=el('text',{x:x1+5,y:y0+laneH/2+3.5,'font-size':narrow?9:10.5,fill:css('--ink'),'font-family':'IBM Plex Sans, system-ui, sans-serif','pointer-events':'none'},svg); tt.textContent=e.name;}
+    });
+    DATA.events.forEach((ev,idx)=>{ if(ev.lane!==lane || ev.y<view.a || ev.y>view.b) return;
+      const c=el('circle',{cx:x(ev.y),cy:y0+laneH/2,r: selected===idx?6:4,fill:col,stroke:css('--surface'),'stroke-width':1.5,style:'cursor:pointer'},svg);
+      el('title',{},c).textContent = `${fmtE(ev)} — ${ev.t}`;
+      c.addEventListener('click',e=>{e.stopPropagation(); select(idx);});
+    });
+  });
+  // now line
+  if(year>=view.a && year<=view.b){
+    const X=x(year);
+    el('line',{x1:X,x2:X,y1:top-6,y2:H,stroke:css('--accent'),'stroke-width':2.5},svg);
+    el('polygon',{points:`${X-6},${top-12} ${X+6},${top-12} ${X},${top-4}`,fill:css('--accent')},svg);
+  }
+  document.getElementById('rangeLbl').textContent = `${fmt(Math.round(view.a))} – ${fmt(Math.round(view.b))}`;
+}
+
+function world(){
+  document.getElementById('yearBig').textContent = fmt(year);
+  document.getElementById('worldTitle').textContent = `The world in ${fmt(year)}`;
+  document.getElementById('slider').value = year;
+  const ul=document.getElementById('worldList'); ul.innerHTML='';
+  DATA.lanes.forEach(lane=>{
+    const eras = DATA.eras.filter(e=>e.lane===lane && e.s<=year && year<=e.e).map(e=>e.name);
+    const near = DATA.events.map((e,i)=>({...e,i})).filter(e=>e.lane===lane && Math.abs(e.y-year)<=WINDOW).sort((p,q)=>Math.abs(p.y-year)-Math.abs(q.y-year)).slice(0,2);
+    const li=document.createElement('li');
+    li.innerHTML = `<div class="lane-name"><span class="dot" style="background:var(${LANE_COLOR[lane]})"></span>${lane}</div>`;
+    const right=document.createElement('div');
+    right.innerHTML = eras.length ? `<span class="era">${eras.join(' · ')}</span>` : `<span class="quiet">Nothing in our data for this year</span>`;
+    near.forEach(e=>{
+      const d=document.createElement('div');
+      const b=document.createElement('button'); b.className='evlink'; b.type='button'; b.textContent=e.t; b.onclick=()=>select(e.i,true);
+      d.innerHTML=`<span class="when">${fmtE(e)}</span> `; d.appendChild(b); right.appendChild(d);
+    });
+    li.appendChild(right); ul.appendChild(li);
+  });
+}
+
+function select(i, move){
+  selected=i; const ev=DATA.events[i];
+  if(move!==false){ year=ev.y; if(year<view.a||year>view.b){const s=view.b-view.a; view={a:year-s/2,b:year+s/2}; clampView();} }
+  const others = DATA.events.map((e,j)=>({...e,j})).filter(e=>e.lane!==ev.lane && Math.abs(e.y-ev.y)<=WINDOW).sort((p,q)=>Math.abs(p.y-ev.y)-Math.abs(q.y-ev.y)).slice(0,8);
+  document.getElementById('detailEmpty').hidden=true;
+  const body=document.getElementById('detailBody'); body.hidden=false;
+  body.innerHTML = `<div class="tag" style="color:var(${LANE_COLOR[ev.lane]})">${ev.lane} · ${ev.era}</div><h3>${ev.t}</h3><p class="note"><span class="when">${fmtE(ev)}</span>${ev.n?` — ${ev.n}`:''}</p>`;
+  const h=document.createElement('div'); h.className='sub'; h.style.margin='0 0 4px';
+  h.textContent = others.length ? `Within ${WINDOW} years, elsewhere in the world:` : `Nothing else in our data within ${WINDOW} years. A gap worth filling.`;
+  body.appendChild(h);
+  const ul=document.createElement('ul'); ul.className='meanwhile';
+  others.forEach(o=>{
+    const li=document.createElement('li');
+    const diff=o.y-ev.y; const rel = diff===0?'same year': diff>0?`${diff} yr later`:`${-diff} yr earlier`;
+    li.innerHTML=`<span class="when">${rel}</span>`;
+    const r=document.createElement('div');
+    r.innerHTML=`<span class="tag" style="color:var(${LANE_COLOR[o.lane]})">${o.lane}</span><br>`;
+    const b=document.createElement('button'); b.className='evlink'; b.type='button'; b.textContent=o.t; b.onclick=()=>select(o.j);
+    r.appendChild(b); li.appendChild(r); ul.appendChild(li);
+  });
+  body.appendChild(ul);
+  draw(); world();
+}
+
+function clampView(){ const s=view.b-view.a; if(view.a<MIN){view={a:MIN,b:MIN+s}} if(view.b>MAX){view={a:MAX-s,b:MAX}} }
+function zoom(f){ const c=year; let s=(view.b-view.a)*f; s=Math.max(120,Math.min(MAX-MIN,s)); view={a:c-s/2,b:c+s/2}; clampView(); draw(); }
+function setYear(y){ year=Math.max(MIN,Math.min(MAX,Math.round(y))); if(year<view.a||year>view.b){const s=view.b-view.a; view={a:year-s/2,b:year+s/2}; clampView();} draw(); world(); }
+
+// interactions: click to set year, drag to pan
+let drag=null;
+svg.addEventListener('pointerdown',e=>{ drag={x:e.clientX,a:view.a,b:view.b,moved:false}; });
+window.addEventListener('pointermove',e=>{ if(!drag) return; const dx=e.clientX-drag.x; if(Math.abs(dx)>4) drag.moved=true; if(!drag.moved) return;
+  const pxPerYear=(svg._W-svg._LBL-8)/(drag.b-drag.a); const dy=dx/pxPerYear; view={a:drag.a-dy,b:drag.b-dy}; clampView(); draw(); });
+window.addEventListener('pointerup',e=>{ if(drag && !drag.moved && e.target.tagName!=='circle'){ const r=svg.getBoundingClientRect(); const px=(e.clientX-r.left)*(svg._W/r.width);
+  if(px>svg._LBL){ const y=view.a+(px-svg._LBL)/(svg._W-svg._LBL-8)*(view.b-view.a); setYear(y);} } drag=null; });
+document.getElementById('slider').addEventListener('input',e=>setYear(+e.target.value));
+document.getElementById('zoomIn').onclick=()=>zoom(0.6);
+document.getElementById('zoomOut').onclick=()=>zoom(1.6);
+document.getElementById('zoomAll').onclick=()=>{view={a:MIN,b:MAX}; draw();};
+
+const PRESETS=[["Cicero is consul",-63],["Thermopylae",-480],["Hannibal crosses the Alps",-218],["AD 1",1],["Fall of the West",476],["Rise of Islam",622],["The Crusades",1099]];
+const pre=document.getElementById('presets');
+PRESETS.forEach(([n,y])=>{const b=document.createElement('button'); b.type='button'; b.textContent=n; b.onclick=()=>{const i=DATA.events.findIndex(e=>e.y===y); if(n!=="AD 1" && i>=0) select(i); else setYear(y);}; pre.appendChild(b);});
+
+document.getElementById('askForm').addEventListener('submit',e=>{
+  e.preventDefault(); const q=document.getElementById('askInput').value.trim(); if(!q) return;
+  const m=q.match(/(-?\d{1,4})\s*(bc|bce|b\.c\.)?/i);
+  const isYear = m && (/^\s*(ad|ce|a\.d\.)?\s*-?\d{1,4}\s*(bc|bce|ad|ce|b\.c\.|a\.d\.)?\s*$/i.test(q));
+  if(isYear){ let y=parseInt(m[1],10); if(m[2]) y=-Math.abs(y); setYear(y); return; }
+  const words=q.toLowerCase().split(/\s+/).filter(w=>w.length>2);
+  let best=-1,score=0; DATA.events.forEach((ev,i)=>{const hay=(ev.t+' '+ev.n+' '+ev.era+' '+ev.lane).toLowerCase(); const s=words.filter(w=>hay.includes(w)).length; if(s>score){score=s;best=i;}});
+  if(best>=0) select(best); else { const d=document.getElementById('detailBody'); document.getElementById('detailEmpty').hidden=true; d.hidden=false; d.innerHTML=`<p class="empty">Nothing in this prototype's data matches “${q.replace(/[<>&]/g,'')}”. Try a year, or a name like Caesar, Buddha, or Saladin.</p>`; }
+});
+
+window.addEventListener('resize',()=>draw());
+matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',()=>draw());
+new MutationObserver(()=>draw()).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+document.fonts?.ready?.then(()=>draw());
+draw(); world(); select(DATA.events.findIndex(e=>e.y===-63),false);
+</script>
+
+</body>
+</html>
