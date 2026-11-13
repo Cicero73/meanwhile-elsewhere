@@ -7,3 +7,8 @@ Pick any moment in the past and see what every civilization was doing at that sa
 ## Run it
 
 Open `index.html` in any web browser. There is nothing to install.
+
+## Where things are
+
+- `index.html`: the page, its styles and its code.
+- `data/events.js`: the historical data (events, eras and lanes), one record per line.
